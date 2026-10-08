@@ -1,0 +1,5 @@
+{
+  "name": "claude-run-status",
+  "owner": { "name": "gwang-indoc" },
+  "plugins": [{ "name": "busy-dancer", "source": "./" }]
+}
