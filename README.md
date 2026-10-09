@@ -5,13 +5,12 @@
 **A Claude Code mod that dances while Claude works — and keeps your Mac awake until it's done.**
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://github.com/gwang-indoc/claude_run_status)
-[![Version](https://img.shields.io/badge/version-0.3.0-blue?style=flat-square)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.3.1-blue?style=flat-square)](.claude-plugin/plugin.json)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey?style=flat-square&logo=apple)](#-requirements)
 [![Tests](https://img.shields.io/badge/tests-2%20passing-brightgreen?style=flat-square)](tests/busy.test.ts)
 
 ```
- ♪ CLAUDE IS WORKING                                   \O/
- 🤖 2 subagents · ☕ screen kept awake                  / \
+ 💃 ♪      Claude is working · 2 subagents · ☕ screen kept awake
 ```
 
 [Install](#-install) · [How it works](#%EF%B8%8F-how-it-works) · [Develop](#%EF%B8%8F-develop) · [FAQ](#-faq)
@@ -24,7 +23,7 @@
 
 |     | What you get |
 | :-: | --- |
-| 💃 | **A little dancer above the prompt**, just two rows tall on a soft grape band, who dances back and forth whenever Claude is busy without eating your screen. With only one row to spare she rides a one-row bar instead |
+| 💃 | **A dancer above the prompt** that sways left and right, four frames a second, whenever Claude is busy |
 | 🤖 | **Subagent aware** — counts running subagents, including background ones that outlive the main reply |
 | ☕ | **No more locked screens** — runs `caffeinate -d -i` while busy so the display stays on and the Mac won't idle-sleep |
 | 🧹 | **Cleans up after itself** — the dancer and `caffeinate` both stop within about a second of everything going idle |
