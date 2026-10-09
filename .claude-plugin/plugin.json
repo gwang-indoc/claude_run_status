@@ -1,6 +1,6 @@
 {
   "name": "busy-dancer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Dances above the prompt and runs `caffeinate -d -i` while Claude or any subagent is working",
   "types": "./types/index.d.ts"
 }

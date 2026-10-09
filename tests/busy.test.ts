@@ -48,9 +48,21 @@ test('a main turn dances and keeps the screen awake until it completes', async (
   expect(spawns.live).toBe(1)
 
   const ui = await $.ui.mount({ plugin: 'busy-dancer', surface: 'terminal', component: 'AbovePrompt', props: BAND_PROPS })
-  expect(await ui.find({ type: 'Text', text: /Claude is working · ☕ screen kept awake/ })).toBeDefined()
-  expect(await ui.find({ type: 'Text', text: /💃/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /CLAUDE IS WORKING/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /☕ screen kept awake/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /O/ })).toBeDefined()
   await ui.unmount()
+
+  // Too short for the big band: the one-row dancer instead.
+  const small = await $.ui.mount({
+    plugin: 'busy-dancer',
+    surface: 'terminal',
+    component: 'AbovePrompt',
+    props: { ...BAND_PROPS, maxRows: 3 },
+  })
+  expect(await small.find({ type: 'Text', text: /💃/ })).toBeDefined()
+  expect(await small.find({ type: 'Text', text: /Claude is working · ☕ screen kept awake/ })).toBeDefined()
+  await small.unmount()
 
   await $.turn.complete({ answer: 'ok', durationMs: 10, isAborted: false, turnId: 't1', reason: 'answer' })
   await clock.advance(500)

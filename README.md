@@ -5,12 +5,20 @@
 **A Claude Code mod that dances while Claude works — and keeps your Mac awake until it's done.**
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://github.com/gwang-indoc/claude_run_status)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=flat-square)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue?style=flat-square)](.claude-plugin/plugin.json)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey?style=flat-square&logo=apple)](#-requirements)
 [![Tests](https://img.shields.io/badge/tests-2%20passing-brightgreen?style=flat-square)](tests/busy.test.ts)
 
 ```
- 💃 ♪      Claude is working · 2 subagents · ☕ screen kept awake
+╭──────────────────────────────────────────────────────────╮
+│                          \  O  /                         │
+│                           \_|_/                          │
+│ ♪ CLAUDE IS WORKING          |                           │
+│ 🤖 2 subagents              /~\                          │
+│ ☕ screen kept awake        /~~~\                         │
+│                             | |                          │
+│                            _| |_                         │
+╰──────────────────────────────────────────────────────────╯
 ```
 
 [Install](#-install) · [How it works](#%EF%B8%8F-how-it-works) · [Develop](#%EF%B8%8F-develop) · [FAQ](#-faq)
@@ -23,7 +31,7 @@
 
 |     | What you get |
 | :-: | --- |
-| 💃 | **A dancer above the prompt** that sways left and right, four frames a second, whenever Claude is busy |
+| 💃 | **A big dancer above the prompt**, seven rows tall in a magenta frame, who dances back and forth across the band whenever Claude is busy, easy to spot from across the room. When the terminal is too short or narrow she shrinks to a one-row 💃 |
 | 🤖 | **Subagent aware** — counts running subagents, including background ones that outlive the main reply |
 | ☕ | **No more locked screens** — runs `caffeinate -d -i` while busy so the display stays on and the Mac won't idle-sleep |
 | 🧹 | **Cleans up after itself** — the dancer and `caffeinate` both stop within about a second of everything going idle |
