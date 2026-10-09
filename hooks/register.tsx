@@ -6,9 +6,6 @@ import type { BusyView } from '../types'
 const IDLE: BusyView = { isBusy: false, frame: 0, agents: 0, isAwake: false }
 const view = atom({ plugin: 'busy-dancer', key: 'view' } as const, IDLE)
 
-// She dances left and right, notes alternating: the one-row fallback.
-export const FRAMES = ['💃 ♪    ', ' 💃 ♫   ', '  💃 ♪  ', '   💃 ♫ ', '  💃 ♪  ', ' 💃 ♫   ']
-
 // The big dancer, seen across the room: arms up, sway left, arms up, sway right.
 // ASCII only, so every row is the same width in any terminal or locale.
 const ARMS_UP = [' \\  O  / ', '  \\_|_/  ', '    |    ', '   /~\\   ', '  /~~~\\  ', '   | |   ', '  _| |_  '] as const
@@ -22,8 +19,11 @@ const POSE_TICKS = 2
 const INFO_WIDTH = 24
 const CHROME_COLUMNS = 4
 const CHROME_ROWS = 2
-// The big band needs this many rows; below it the one-row dancer shows.
+// The big band needs this many rows; below it a full-width bar shows instead.
 export const BIG_ROWS = ARMS_UP.length + CHROME_ROWS
+// The bar's dancer and its share of the bar beside the label, in cells.
+const BAR_DANCER_WIDTH = 4
+const BAR_CHROME_COLUMNS = 6
 
 export const CAFFEINATE = ['caffeinate', '-d', '-i'] as const
 
@@ -65,6 +65,13 @@ function stopCaffeinate() {
   const child = caffeinate
   caffeinate = null
   void child?.return(undefined as never)
+}
+
+// Steps 0..span and back again, one a tick.
+function bounce(frame: number, span: number) {
+  if (span <= 0) return 0
+  const step = frame % (2 * span)
+  return step <= span ? step : 2 * span - step
 }
 
 async function onTick($: EngineInterface) {
@@ -122,25 +129,31 @@ export const register: Register = on => {
     const subagents = v.agents > 0 ? `${v.agents} subagent${v.agents === 1 ? '' : 's'}` : ''
     const lane = e.props.bodyColumns - CHROME_COLUMNS - INFO_WIDTH
 
+    const beat = Math.floor(v.frame / POSE_TICKS)
+    const note = beat % 2 === 0 ? '♪' : '♫'
+
+    // Too little room for her full height: a solid magenta bar across the
+    // band, three rows deep where it fits, with her dancing along it.
     if (e.props.maxRows < BIG_ROWS || lane < POSE_WIDTH) {
       const who = subagents ? ` · ${subagents}` : ''
       const awake = v.isAwake ? ' · ☕ screen kept awake' : ''
+      const label = ` CLAUDE IS WORKING${who}${awake} `
+      const track = e.props.bodyColumns - label.length - BAR_DANCER_WIDTH - BAR_CHROME_COLUMNS
       return (
-        <Box>
-          <Text color="magenta">{FRAMES[v.frame % FRAMES.length]}</Text>
-          <Text dimColor>
-            {' '}Claude is working{who}{awake}
+        <Box backgroundColor="magenta" width={e.props.bodyColumns} paddingX={1} paddingY={e.props.maxRows >= 3 ? 1 : 0}>
+          <Text bold color="white" wrap="truncate">
+            {label}
           </Text>
+          <Box marginLeft={bounce(v.frame, track)}>
+            <Text bold color="white">
+              {`💃${note}`}
+            </Text>
+          </Box>
         </Box>
       )
     }
 
-    // She travels the lane and back, one column a tick.
-    const span = lane - POSE_WIDTH
-    const step = span === 0 ? 0 : v.frame % (2 * span)
-    const offset = step <= span ? step : 2 * span - step
-    const pose = POSES[Math.floor(v.frame / POSE_TICKS) % POSES.length] ?? ARMS_UP
-    const note = Math.floor(v.frame / POSE_TICKS) % 2 === 0 ? '♪' : '♫'
+    const pose = POSES[beat % POSES.length] ?? ARMS_UP
 
     return (
       <Box borderStyle="round" borderColor="magenta" paddingX={1}>
@@ -151,7 +164,7 @@ export const register: Register = on => {
           {subagents ? <Text color="magenta">🤖 {subagents}</Text> : null}
           {v.isAwake ? <Text dimColor>☕ screen kept awake</Text> : null}
         </Box>
-        <Box flexDirection="column" marginLeft={offset}>
+        <Box flexDirection="column" marginLeft={bounce(v.frame, lane - POSE_WIDTH)}>
           {pose.map((row, i) => (
             <Text key={String(i)} bold color="magenta">
               {row}

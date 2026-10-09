@@ -53,7 +53,7 @@ test('a main turn dances and keeps the screen awake until it completes', async (
   expect(await ui.find({ type: 'Text', text: /O/ })).toBeDefined()
   await ui.unmount()
 
-  // Too short for the big band: the one-row dancer instead.
+  // Too short for the big band: the full-width bar instead.
   const small = await $.ui.mount({
     plugin: 'busy-dancer',
     surface: 'terminal',
@@ -61,7 +61,7 @@ test('a main turn dances and keeps the screen awake until it completes', async (
     props: { ...BAND_PROPS, maxRows: 3 },
   })
   expect(await small.find({ type: 'Text', text: /💃/ })).toBeDefined()
-  expect(await small.find({ type: 'Text', text: /Claude is working · ☕ screen kept awake/ })).toBeDefined()
+  expect(await small.find({ type: 'Text', text: /CLAUDE IS WORKING · ☕ screen kept awake/ })).toBeDefined()
   await small.unmount()
 
   await $.turn.complete({ answer: 'ok', durationMs: 10, isAborted: false, turnId: 't1', reason: 'answer' })
