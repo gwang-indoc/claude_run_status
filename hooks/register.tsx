@@ -25,6 +25,13 @@ export const BIG_ROWS = ARMS_UP.length + CHROME_ROWS
 const BAR_DANCER_WIDTH = 4
 const BAR_CHROME_COLUMNS = 6
 
+// A soft palette: muted grape, blush and peach rather than bright magenta.
+const GRAPE = '#5b3a6e'
+const BLUSH = '#fde2f3'
+const PEACH = '#ffd6a5'
+const LAVENDER = '#b98fc9'
+const ROSE = '#f2a7c9'
+
 export const CAFFEINATE = ['caffeinate', '-d', '-i'] as const
 
 const TICK_MS = 250
@@ -132,7 +139,7 @@ export const register: Register = on => {
     const beat = Math.floor(v.frame / POSE_TICKS)
     const note = beat % 2 === 0 ? '♪' : '♫'
 
-    // Too little room for her full height: a solid magenta bar across the
+    // Too little room for her full height: a solid grape bar across the
     // band, three rows deep where it fits, with her dancing along it.
     if (e.props.maxRows < BIG_ROWS || lane < POSE_WIDTH) {
       const who = subagents ? ` · ${subagents}` : ''
@@ -140,12 +147,12 @@ export const register: Register = on => {
       const label = ` CLAUDE IS WORKING${who}${awake} `
       const track = e.props.bodyColumns - label.length - BAR_DANCER_WIDTH - BAR_CHROME_COLUMNS
       return (
-        <Box backgroundColor="magenta" width={e.props.bodyColumns} paddingX={1} paddingY={e.props.maxRows >= 3 ? 1 : 0}>
-          <Text bold color="white" wrap="truncate">
+        <Box backgroundColor={GRAPE} width={e.props.bodyColumns} paddingX={1} paddingY={e.props.maxRows >= 3 ? 1 : 0}>
+          <Text bold color={BLUSH} wrap="truncate">
             {label}
           </Text>
           <Box marginLeft={bounce(v.frame, track)}>
-            <Text bold color="white">
+            <Text bold color={PEACH}>
               {`💃${note}`}
             </Text>
           </Box>
@@ -156,17 +163,17 @@ export const register: Register = on => {
     const pose = POSES[beat % POSES.length] ?? ARMS_UP
 
     return (
-      <Box borderStyle="round" borderColor="magenta" paddingX={1}>
+      <Box borderStyle="round" borderColor={LAVENDER} paddingX={1}>
         <Box flexDirection="column" width={INFO_WIDTH} justifyContent="center">
-          <Text bold color="white" backgroundColor="magenta">
+          <Text bold color={BLUSH} backgroundColor={GRAPE}>
             {` ${note} CLAUDE IS WORKING `}
           </Text>
-          {subagents ? <Text color="magenta">🤖 {subagents}</Text> : null}
+          {subagents ? <Text color={ROSE}>🤖 {subagents}</Text> : null}
           {v.isAwake ? <Text dimColor>☕ screen kept awake</Text> : null}
         </Box>
         <Box flexDirection="column" marginLeft={bounce(v.frame, lane - POSE_WIDTH)}>
           {pose.map((row, i) => (
-            <Text key={String(i)} bold color="magenta">
+            <Text key={String(i)} bold color={ROSE}>
               {row}
             </Text>
           ))}
