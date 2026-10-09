@@ -6,21 +6,20 @@ import type { BusyView } from '../types'
 const IDLE: BusyView = { isBusy: false, frame: 0, agents: 0, isAwake: false }
 const view = atom({ plugin: 'busy-dancer', key: 'view' } as const, IDLE)
 
-// The big dancer, seen across the room: arms up, sway left, arms up, sway right.
+// A little dancer two rows tall: arms up, kick left, arms up, kick right.
 // ASCII only, so every row is the same width in any terminal or locale.
-const ARMS_UP = [' \\  O  / ', '  \\_|_/  ', '    |    ', '   /~\\   ', '  /~~~\\  ', '   | |   ', '  _| |_  '] as const
-const SWAY_LEFT = [' \\  O    ', '  \\_|\\   ', '    | \\  ', '   /~\\   ', '  /~~~\\  ', '   |  \\  ', '  _|   \\_']
-const SWAY_RIGHT = ['    O  / ', '   /|_/  ', '  / |    ', '   /~\\   ', '  /~~~\\  ', '  /  |   ', '_/   |_  ']
-export const POSES = [ARMS_UP, SWAY_LEFT, ARMS_UP, SWAY_RIGHT]
+const ARMS_UP = [' \\O/ ', ' / \\ '] as const
+const KICK_LEFT = [' \\O_ ', ' / > ']
+const KICK_RIGHT = [' _O/ ', ' < \\ ']
+export const POSES = [ARMS_UP, KICK_LEFT, ARMS_UP, KICK_RIGHT]
 const POSE_WIDTH = ARMS_UP[0].length
 // Ticks each pose is held (two poses a second).
 const POSE_TICKS = 2
-// The text column beside her, and the border plus padding around the band.
-const INFO_WIDTH = 24
-const CHROME_COLUMNS = 4
-const CHROME_ROWS = 2
-// The big band needs this many rows; below it a full-width bar shows instead.
-export const BIG_ROWS = ARMS_UP.length + CHROME_ROWS
+// The text column beside her, and the padding either side of the band.
+const INFO_WIDTH = 38
+const PAD_COLUMNS = 2
+// The band is as tall as she is; below that a one-row bar shows instead.
+export const BAND_ROWS = ARMS_UP.length
 // The bar's dancer and its share of the bar beside the label, in cells.
 const BAR_DANCER_WIDTH = 4
 const BAR_CHROME_COLUMNS = 6
@@ -29,7 +28,6 @@ const BAR_CHROME_COLUMNS = 6
 const GRAPE = '#5b3a6e'
 const BLUSH = '#fde2f3'
 const PEACH = '#ffd6a5'
-const LAVENDER = '#b98fc9'
 const ROSE = '#f2a7c9'
 
 export const CAFFEINATE = ['caffeinate', '-d', '-i'] as const
@@ -134,20 +132,20 @@ export const register: Register = on => {
 
     const { Box, Text } = $.ui.resolve(e)
     const subagents = v.agents > 0 ? `${v.agents} subagent${v.agents === 1 ? '' : 's'}` : ''
-    const lane = e.props.bodyColumns - CHROME_COLUMNS - INFO_WIDTH
+    const lane = e.props.bodyColumns - PAD_COLUMNS - INFO_WIDTH
 
     const beat = Math.floor(v.frame / POSE_TICKS)
     const note = beat % 2 === 0 ? '♪' : '♫'
 
-    // Too little room for her full height: a solid grape bar across the
-    // band, three rows deep where it fits, with her dancing along it.
-    if (e.props.maxRows < BIG_ROWS || lane < POSE_WIDTH) {
+    // One row free, or too narrow for her beside the label: a one-row grape
+    // bar with a little 💃 dancing along it.
+    if (e.props.maxRows < BAND_ROWS || lane < POSE_WIDTH) {
       const who = subagents ? ` · ${subagents}` : ''
       const awake = v.isAwake ? ' · ☕ screen kept awake' : ''
       const label = ` CLAUDE IS WORKING${who}${awake} `
       const track = e.props.bodyColumns - label.length - BAR_DANCER_WIDTH - BAR_CHROME_COLUMNS
       return (
-        <Box backgroundColor={GRAPE} width={e.props.bodyColumns} paddingX={1} paddingY={e.props.maxRows >= 3 ? 1 : 0}>
+        <Box backgroundColor={GRAPE} width={e.props.bodyColumns} paddingX={1}>
           <Text bold color={BLUSH} wrap="truncate">
             {label}
           </Text>
@@ -161,19 +159,21 @@ export const register: Register = on => {
     }
 
     const pose = POSES[beat % POSES.length] ?? ARMS_UP
+    const details = [subagents && `🤖 ${subagents}`, v.isAwake && '☕ screen kept awake'].filter(Boolean).join(' · ')
 
     return (
-      <Box borderStyle="round" borderColor={LAVENDER} paddingX={1}>
-        <Box flexDirection="column" width={INFO_WIDTH} justifyContent="center">
-          <Text bold color={BLUSH} backgroundColor={GRAPE}>
-            {` ${note} CLAUDE IS WORKING `}
+      <Box backgroundColor={GRAPE} width={e.props.bodyColumns} paddingX={1}>
+        <Box flexDirection="column" width={INFO_WIDTH}>
+          <Text bold color={BLUSH} wrap="truncate">
+            {` ${note} CLAUDE IS WORKING`}
           </Text>
-          {subagents ? <Text color={ROSE}>🤖 {subagents}</Text> : null}
-          {v.isAwake ? <Text dimColor>☕ screen kept awake</Text> : null}
+          <Text color={ROSE} wrap="truncate">
+            {details ? ` ${details}` : ' '}
+          </Text>
         </Box>
         <Box flexDirection="column" marginLeft={bounce(v.frame, lane - POSE_WIDTH)}>
           {pose.map((row, i) => (
-            <Text key={String(i)} bold color={ROSE}>
+            <Text key={String(i)} bold color={PEACH}>
               {row}
             </Text>
           ))}

@@ -32,7 +32,7 @@ function agentRow(id: string, status: AgentInfo['status']): AgentInfo {
 }
 
 const SESSION = { cwd: '/tmp', surface: 'terminal' as const, isInteractive: true }
-const BAND_PROPS = { hasSurvey: false, isWorking: true, maxRows: 10, bodyColumns: 80 } as unknown as RenderPropsOf['AbovePrompt']
+const BAND_PROPS = { hasSurvey: false, isWorking: true, maxRows: 2, bodyColumns: 80 } as unknown as RenderPropsOf['AbovePrompt']
 
 test('a main turn dances and keeps the screen awake until it completes', async ($, on) => {
   const clock = mock.clock(on)
@@ -51,14 +51,15 @@ test('a main turn dances and keeps the screen awake until it completes', async (
   expect(await ui.find({ type: 'Text', text: /CLAUDE IS WORKING/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /☕ screen kept awake/ })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /O/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /💃/ })).toBeUndefined()
   await ui.unmount()
 
-  // Too short for the big band: the full-width bar instead.
+  // Only one row free: the one-row bar instead.
   const small = await $.ui.mount({
     plugin: 'busy-dancer',
     surface: 'terminal',
     component: 'AbovePrompt',
-    props: { ...BAND_PROPS, maxRows: 3 },
+    props: { ...BAND_PROPS, maxRows: 1 },
   })
   expect(await small.find({ type: 'Text', text: /💃/ })).toBeDefined()
   expect(await small.find({ type: 'Text', text: /CLAUDE IS WORKING · ☕ screen kept awake/ })).toBeDefined()
