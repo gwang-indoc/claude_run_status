@@ -13,7 +13,9 @@ export const CAFFEINATE = ['caffeinate', '-d', '-i'] as const
 const TICK_MS = 250
 // agent.list is polled every Nth tick (once a second).
 const AGENT_POLL_EVERY = 4
-const BUSY_AGENT = new Set(['pending', 'running'])
+// `waiting` is a subagent held on background work it owns (a backgrounded
+// shell, its own subagents): still working, just not mid-turn.
+const BUSY_AGENT = new Set(['pending', 'running', 'waiting'])
 
 type Child = AsyncGenerator<ProcessSpawnChunk, ProcessSpawnResult>
 
@@ -22,6 +24,10 @@ type Child = AsyncGenerator<ProcessSpawnChunk, ProcessSpawnResult>
 const mainTurns = new Set<string>()
 let agents = 0
 let tick = 0
+// Rows the band last had. A short terminal with a tall status line leaves it
+// none, and the engine then draws nothing: the dancer moves to the status line.
+let bandRows = 1
+let statusText: string | undefined
 let caffeinate: Child | null = null
 let stopTimer: (() => void) | null = null
 
@@ -50,6 +56,18 @@ function stopCaffeinate() {
   void child?.return(undefined as never)
 }
 
+function label(v: BusyView) {
+  const who = v.agents > 0 ? ` · ${v.agents} subagent${v.agents === 1 ? '' : 's'}` : ''
+  const awake = v.isAwake ? ' · ☕ screen kept awake' : ''
+  return `Claude is working${who}${awake}`
+}
+
+function setStatus($: EngineInterface, text: string | undefined) {
+  if (text === statusText) return
+  statusText = text
+  $.ui.status(text)
+}
+
 async function onTick($: EngineInterface) {
   tick += 1
   if (tick % AGENT_POLL_EVERY === 0) {
@@ -65,10 +83,10 @@ async function onTick($: EngineInterface) {
   if (!isBusy && caffeinate !== null) stopCaffeinate()
 
   const current = await read($, view)
-  if (!isBusy && !current.isBusy) return
-  await update($, view, () =>
-    isBusy ? { isBusy, frame: tick % FRAMES.length, agents, isAwake: caffeinate !== null } : IDLE,
-  )
+  if (!isBusy && !current.isBusy) return setStatus($, undefined)
+  const next = isBusy ? { isBusy, frame: tick % FRAMES.length, agents, isAwake: caffeinate !== null } : IDLE
+  await update($, view, () => next)
+  setStatus($, isBusy && bandRows < 1 ? `${FRAMES[next.frame]} ${label(next)}` : undefined)
 }
 
 export const register: Register = on => {
@@ -94,22 +112,22 @@ export const register: Register = on => {
     mainTurns.clear()
     agents = 0
     stopCaffeinate()
+    setStatus($, undefined)
     return next(e)
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    bandRows = e.props.maxRows
     const v = await read($, view)
     if (e.props.hasSurvey || !v.isBusy) return next(e)
 
     const { Box, Text } = $.ui.resolve(e)
-    const who = v.agents > 0 ? ` · ${v.agents} subagent${v.agents === 1 ? '' : 's'}` : ''
-    const awake = v.isAwake ? ' · ☕ screen kept awake' : ''
 
     return (
       <Box>
         <Text color="magenta">{FRAMES[v.frame % FRAMES.length]}</Text>
         <Text dimColor>
-          {' '}Claude is working{who}{awake}
+          {' '}{label(v)}
         </Text>
       </Box>
     )

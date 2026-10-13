@@ -5,9 +5,9 @@
 **A Claude Code mod that dances while Claude works — and keeps your Mac awake until it's done.**
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://github.com/gwang-indoc/claude_run_status)
-[![Version](https://img.shields.io/badge/version-0.3.1-blue?style=flat-square)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.3.2-blue?style=flat-square)](.claude-plugin/plugin.json)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey?style=flat-square&logo=apple)](#-requirements)
-[![Tests](https://img.shields.io/badge/tests-2%20passing-brightgreen?style=flat-square)](tests/busy.test.ts)
+[![Tests](https://img.shields.io/badge/tests-4%20passing-brightgreen?style=flat-square)](tests/busy.test.ts)
 
 ```
  💃 ♪      Claude is working · 2 subagents · ☕ screen kept awake
@@ -63,7 +63,8 @@ flowchart LR
 ```
 
 - **Main conversation** — busy from the moment a turn starts until it completes, whether answered, interrupted or errored.
-- **Subagents** — the agent list is checked once a second; any agent that is `pending` or `running` counts.
+- **Subagents** — the agent list is checked once a second; any agent that is `pending`, `running` or `waiting` (held on a background shell or its own subagents) counts.
+- **Short terminals** — when the band above the prompt has no room (a short window with a tall status line), the dancer shows on the line under the prompt instead.
 - **Keep-awake** — `caffeinate -d -i` starts the moment anything is busy (`-d` keeps the display on, `-i` prevents idle sleep). It stops when everything goes idle, when the mod reloads, or when the session ends.
 
 ## 📋 Requirements
