@@ -105,7 +105,7 @@ test('with no room for the band, the dancer moves to the status line', async ($,
 
   await $.session.start(SESSION)
   await clock.advance(1500)
-  expect(spawns.status).toEqual([])
+  expect(spawns.status.filter(s => s !== undefined)).toEqual([])
 
   const noRoom = { ...BAND_PROPS, maxRows: 0 } as RenderPropsOf['AbovePrompt']
   const ui = await $.ui.mount({ plugin: 'busy-dancer', surface: 'terminal', component: 'AbovePrompt', props: noRoom })
@@ -116,4 +116,16 @@ test('with no room for the band, the dancer moves to the status line', async ($,
   agents = []
   await clock.advance(1500)
   expect(spawns.status.at(-1)).toBeUndefined()
+})
+
+test('a fresh load clears a status line an earlier load of the mod left behind', async ($, on) => {
+  // A hot reload mid-turn drops the module's state but not the engine's
+  // status line: the new code must clear it, not assume nothing is there.
+  const clock = mock.clock(on)
+  const spawns = fakeEngine(on, () => [])
+
+  await $.session.start(SESSION)
+  await clock.advance(500)
+  expect(spawns.status).toContain(undefined)
+  expect(spawns.live).toBe(0)
 })

@@ -27,7 +27,9 @@ let tick = 0
 // Rows the band last had. A short terminal with a tall status line leaves it
 // none, and the engine then draws nothing: the dancer moves to the status line.
 let bandRows = 1
-let statusText: string | undefined
+// The status line last sent; null until the first send. The engine keeps the
+// line across a reload, so a fresh load can't assume it holds nothing.
+let statusText: string | undefined | null = null
 let caffeinate: Child | null = null
 let stopTimer: (() => void) | null = null
 

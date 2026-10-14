@@ -5,9 +5,9 @@
 **A Claude Code mod that dances while Claude works — and keeps your Mac awake until it's done.**
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-D97757?style=flat-square)](https://github.com/gwang-indoc/claude_run_status)
-[![Version](https://img.shields.io/badge/version-0.3.2-blue?style=flat-square)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.3.3-blue?style=flat-square)](.claude-plugin/plugin.json)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey?style=flat-square&logo=apple)](#-requirements)
-[![Tests](https://img.shields.io/badge/tests-4%20passing-brightgreen?style=flat-square)](tests/busy.test.ts)
+[![Tests](https://img.shields.io/badge/tests-5%20passing-brightgreen?style=flat-square)](tests/busy.test.ts)
 
 ```
  💃 ♪      Claude is working · 2 subagents · ☕ screen kept awake
