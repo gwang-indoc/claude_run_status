@@ -20,7 +20,8 @@ const BUSY_AGENT = new Set(['pending', 'running', 'waiting'])
 type Child = AsyncGenerator<ProcessSpawnChunk, ProcessSpawnResult>
 
 // Module state; a reload starts it over (and kills the old caffeinate).
-// Main-loop turns in flight, by turnId. Subagent runs raise no turn.start.
+// Main-loop turns in flight, by turnId. Subagent turns also raise turn.start
+// (with agentId); those are left to agent.list, or they'd never be removed.
 const mainTurns = new Set<string>()
 let agents = 0
 let tick = 0
@@ -101,7 +102,7 @@ export const register: Register = on => {
   })
 
   on('turn.start', ($, e, next) => {
-    mainTurns.add(e.turnId)
+    if (e.agentId === undefined) mainTurns.add(e.turnId)
     return next(e)
   })
 

@@ -129,3 +129,24 @@ test('a fresh load clears a status line an earlier load of the mod left behind',
   expect(spawns.status).toContain(undefined)
   expect(spawns.live).toBe(0)
 })
+
+test('a subagent turn does not keep the dancer going once the agent is done', async ($, on) => {
+  // turn.start fires for subagent turns too (with agentId); only the agent
+  // list should speak for them, or a finished subagent dances forever.
+  const clock = mock.clock(on)
+  let agents = [agentRow('a1', 'running')]
+  const spawns = fakeEngine(on, () => agents)
+
+  await $.session.start(SESSION)
+  await $.turn.start({ text: 'go', turnId: 'main' })
+  await $.turn.start({ text: 'sub', turnId: 'sub1', agentId: 'a1' })
+  await clock.advance(1500)
+  expect(spawns.live).toBe(1)
+
+  await $.turn.complete({ answer: 'ok', durationMs: 10, isAborted: false, turnId: 'sub1', agentId: 'a1', reason: 'answer' })
+  await $.turn.complete({ answer: 'ok', durationMs: 10, isAborted: false, turnId: 'main', reason: 'answer' })
+  agents = [agentRow('a1', 'completed')]
+  await clock.advance(1500)
+  expect(spawns.live).toBe(0)
+  expect(spawns.status.at(-1)).toBeUndefined()
+})
